@@ -14,30 +14,6 @@ class Chat < ApplicationRecord
 
   attr_accessor :message
 
-  # def call_ollama(chat)
-  #   # Create an empty message to stream to
-  #   message = chat.messages.create(role: 'assistant', content: '')
-
-  #   client = Ollama.new(
-  #     credentials: { address: ENV['OLLAMA_API_URL'] },
-  #     options: { server_sent_events: true }
-  #   )
-
-  #   client.chat(
-  #     {
-  #       model: 'text-summarization-model',
-  #       messages: chat.messages.map { |m| { role: m.role, content: m.content } }
-  #     }
-  #   ) do |event, raw|
-  #     message = if chat.messages.last.role == 'assistant'
-  #                 chat.messages.last
-  #               else
-  #                 chat.messages.create(role: 'assistant', content: '')
-  #               end
-  #     stream_proc(message, event)
-  #   end
-  # end
-
   def message=(message)
     self.history = { prompt: message, history: [] } if history.blank?
 
@@ -50,50 +26,26 @@ class Chat < ApplicationRecord
     end
     messages << { role: 'user', content: message } if messages.size > 1
 
-    # client = Ollama.new(
-    #   credentials: { address: ENV['OLLAMA_API_URL'] },
-    #   options: { server_sent_events: true }
-    # )
-
-    # response_raw = client.chat(
-    #   {
-    #     model: 'mistral',
-    #     messages: messages.map { |m| { role: m[:role], content: m[:content] } }
-    #   }
-    # ) do |event, raw|
-    #   message = if messages.last[:role] == 'assistant'
-    #               messages
-    #             else
-    #               messages = [ { role: 'assistant', content: '' } ]
-    #             end
-    #   stream_proc(message, event)
-    # end
+    client = Ollama.new(
+      credentials: { address: ENV['OLLAMA_API_URL'] },
+      options: { server_sent_events: true }
+    )
 
     response_raw = client.chat(
-      parameters: {
-        model: 'gpt-3.5-turbo',
-        messages:,
-        temperature: 0.0
+      {
+        model: 'mistral',
+        messages: messages.map { |m| { role: m[:role], content: m[:content] } }
       }
     )
 
-    self.history['history'] << response_raw
+    content = response_raw.map {|r| r['message']['content']}.join
+    res = { model: 'mistral', message: { role: "assistant", content: } }
 
-    Rails.logger.debug response_raw
-    response = JSON.parse(response_raw.to_json, object_class: OpenStruct)
+    self.history['history'] << res
 
-    self.q_and_a << [message, response.choices[0].message.content]
-    # self.q_and_a << [message, response[0].message.content]
-  end
+    Rails.logger.debug res
+    response = JSON.parse(res.to_json, object_class: OpenStruct)
 
-  private
-
-  def stream_proc(message, event)
-    new_content = event.dig('message', 'content')
-    message = message.last[:content] + new_content if new_content
-  end
-
-  def client
-    OpenAI::Client.new
+    self.q_and_a << [message, response.message.content]
   end
 end
