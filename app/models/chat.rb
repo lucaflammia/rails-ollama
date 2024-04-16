@@ -33,7 +33,7 @@ class Chat < ApplicationRecord
 
     response_raw = client.chat(
       {
-        model: 'mistral',
+        model: 'gemma:2b',
         messages: messages.map { |m| { role: m[:role], content: m[:content] } }
       }
     )
