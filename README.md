@@ -11,12 +11,27 @@ This code will:
 
 # Get Started
 
-Before running the app, we need to set up the database for recording conversations. 
+Before running the app, we need to connect the database for recording conversations. 
 
-Using the docker-compose we can set up Redis and Postgres. Therefore
+To this purpose we need to define settings with the .env file
+
+e.g.
+
+```
+PORT=3000
+REDIS_PORT=16679
+REDIS_URL=redis://localhost:16679
+POSTGRES_HOST=localhost
+POSTGRES_PORT=28453
+POSTGRES_DBUSER=postgres
+POSTGRES_PASSWORD=greatpassword
+OLLAMA_API_URL=http://localhost:11434
+```
+
+Using the docker-compose we can set up Redis and Postgres. 
 
 ```docker-compose up -d```
 
-Finally, we can run the server
+Finally, run the server
 
 ```rails s```
