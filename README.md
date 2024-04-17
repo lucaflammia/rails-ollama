@@ -13,7 +13,7 @@ This code will:
 
 Before running the app, we need to connect the database for recording conversations. 
 
-To this purpose we need to define settings with the .env file
+To this purpose we need to define settings with the ```.env``` file
 
 e.g.
 
