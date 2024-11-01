@@ -28,9 +28,13 @@ POSTGRES_PASSWORD=greatpassword
 OLLAMA_API_URL=http://localhost:11434
 ```
 
-Using the docker-compose we can set up Redis and Postgres. 
+Using the docker-compose we can set up Redis and Postgres
 
 ```docker-compose up -d```
+
+In order to precompile the assets of the rails app, please type
+
+```rails assets:precompile```
 
 Finally, run the server
 
